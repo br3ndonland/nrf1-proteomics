@@ -8,10 +8,6 @@ authors = [{ name = "Your Name" }]
 classifiers = [
   "Natural Language :: English",
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: 3.12",
-  "Programming Language :: Python :: 3.13",
   "Typing :: Typed",
 ]
 dependencies = []
@@ -41,7 +37,7 @@ requires = ["hatchling>=1.26.3,<2"]
 build-backend = "hatchling.build"
 
 [tool.basedpyright]
-pythonVersion = "3.10"
+pythonVersion = "3.13"
 
 [tool.coverage.report]
 exclude_lines = ["if TYPE_CHECKING:", "pragma: no cover"]
