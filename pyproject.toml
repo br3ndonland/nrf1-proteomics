@@ -1,0 +1,123 @@
+[project]
+name = "template-python"
+description = "Your project description here."
+readme = "docs/index.md"
+requires-python = ">=3.10,<4"
+license = "MIT"
+authors = [{ name = "Your Name" }]
+classifiers = [
+  "Natural Language :: English",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Typing :: Typed",
+]
+dependencies = []
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://github.com/br3ndonland/template-python"
+Repository = "https://github.com/br3ndonland/template-python"
+
+[project.optional-dependencies]
+
+[dependency-groups]
+checks = [
+  "basedpyright>=1,<2",
+  "ruff>=0.15,<0.16",
+]
+docs = [
+  "zensical>=0.0.31",
+]
+tests = [
+  "coverage[toml]>=7,<8",
+  "pytest>=9,<10",
+]
+
+[build-system]
+requires = ["hatchling>=1.26.3,<2"]
+build-backend = "hatchling.build"
+
+[tool.basedpyright]
+pythonVersion = "3.10"
+
+[tool.coverage.report]
+exclude_lines = ["if TYPE_CHECKING:", "pragma: no cover"]
+fail_under = 70
+show_missing = true
+
+[tool.coverage.run]
+command_line = "-m pytest"
+source_pkgs = ["template_python", "tests"]
+
+[tool.coverage.paths]
+template_python = ["src/template_python"]
+tests = ["tests"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "tests"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/template_python"]
+
+[tool.hatch.envs.ci]
+builder = true
+dev-mode = false
+dependency-groups = [
+  "checks",
+  "tests",
+]
+
+[tool.hatch.envs.default]
+dev-mode = true
+dependency-groups = [
+  "checks",
+  "docs",
+  "tests",
+]
+
+[tool.hatch.envs.default.scripts]
+check = [
+  "ruff check",
+  "ruff format --check",
+  "basedpyright",
+  "npx -s -y prettier@'^3' . --check",
+  "npx -s -y cspell --dot --gitignore *.md **/*.md",
+]
+format = [
+  "ruff check --fix",
+  "ruff format",
+  "npx -s -y prettier@'^3' . --write",
+]
+
+[tool.hatch.envs.docs]
+dev-mode = false
+dependency-groups = [
+  "docs",
+]
+
+[tool.hatch.envs.production]
+dev-mode = false
+dependency-groups = []
+
+[tool.hatch.version]
+path = "src/template_python/__init__.py"
+
+[tool.pytest]
+addopts = ["-q"]
+minversion = "9.0"
+testpaths = ["tests"]
+
+[tool.ruff]
+src = ["src", "tests"]
+
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.ruff.lint]
+extend-select = ["I", "UP"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["src", "tests"]

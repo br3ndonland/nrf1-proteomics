@@ -1,0 +1,19 @@
+{
+  "overrides": [
+    {
+      "files": ["COMMIT_EDITMSG", "TAG_EDITMSG"],
+      "options": {
+        "parser": "markdown",
+        "printWidth": 72,
+        "proseWrap": "always"
+      }
+    },
+    {
+      "files": ["docs/**/*.md"],
+      "options": {
+        "parser": "markdown",
+        "tabWidth": 4
+      }
+    }
+  ]
+}
