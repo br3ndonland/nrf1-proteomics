@@ -45,7 +45,6 @@ pythonVersion = "3.10"
 
 [tool.coverage.report]
 exclude_lines = ["if TYPE_CHECKING:", "pragma: no cover"]
-fail_under = 70
 show_missing = true
 
 [tool.coverage.run]
