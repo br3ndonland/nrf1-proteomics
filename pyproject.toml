@@ -1,10 +1,9 @@
 [project]
 name = "nrf1-proteomics"
-description = "Your project description here."
 readme = "README.md"
 requires-python = ">=3.10,<4"
 license = "MIT"
-authors = [{ name = "Your Name" }]
+authors = [{ name = "Brendon Smith" }]
 classifiers = [
   "Natural Language :: English",
   "Programming Language :: Python :: 3",
