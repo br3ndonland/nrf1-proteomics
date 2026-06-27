@@ -1,1 +1,1 @@
-./docs/index.md
+# Nrf1 proteomics
