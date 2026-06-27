@@ -1,6 +1,6 @@
 import pytest
 
-from template_python.examples import fizzbuzz
+from nrf1_proteomics.examples import fizzbuzz
 
 
 @pytest.mark.parametrize(

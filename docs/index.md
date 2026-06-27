@@ -1,11 +1,11 @@
-# template-python
+# nrf1-proteomics
 
-[![ci](https://github.com/br3ndonland/template-python/workflows/ci/badge.svg)](https://github.com/br3ndonland/template-python/actions/workflows/ci.yml)
+[![ci](https://github.com/br3ndonland/nrf1-proteomics/workflows/ci/badge.svg)](https://github.com/br3ndonland/nrf1-proteomics/actions/workflows/ci.yml)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
 ## Description
 
-**Welcome!** This is a template repository for Python projects, engineered for use as a [GitHub template repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template). To use the template, click on "[Use this template](https://github.com/new?template_name=template-python&template_owner=br3ndonland)" or use the [GitHub CLI](https://cli.github.com/manual/) (`gh repo create your-repo-name --public --template br3ndonland/template-python`).
+**Welcome!** This is a template repository for Python projects, engineered for use as a [GitHub template repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template). To use the template, click on "[Use this template](https://github.com/new?template_name=nrf1-proteomics&template_owner=br3ndonland)" or use the [GitHub CLI](https://cli.github.com/manual/) (`gh repo create your-repo-name --public --template br3ndonland/nrf1-proteomics`).
 
 The template repo name can be replaced as shown in the [quickstart](#quickstart) section.
 
@@ -20,11 +20,11 @@ your_name="Your Name"
 your_user="YourGitHubUsername"
 
 # update repo for new names
-git mv "src/template_python" "src/${repo_name//-/_}"
+git mv "src/nrf1_proteomics" "src/${repo_name//-/_}"
 git grep -l "br3ndonland" | xargs sed -i "s|br3ndonland|$your_user|g"
 git grep -l "Brendon Smith" | xargs sed -i "s|Brendon Smith|$your_name|g"
-git grep -l "template_python" | xargs sed -i "s|template_python|${repo_name//-/_}|g"
-git grep -l "template-python" | xargs sed -i "s|template-python|$repo_name|g"
+git grep -l "nrf1_proteomics" | xargs sed -i "s|nrf1_proteomics|${repo_name//-/_}|g"
+git grep -l "nrf1-proteomics" | xargs sed -i "s|nrf1-proteomics|$repo_name|g"
 
 # run tests to verify
 hatch run coverage run

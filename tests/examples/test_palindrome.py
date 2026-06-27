@@ -1,6 +1,6 @@
 import pytest
 
-from template_python.examples import palindrome
+from nrf1_proteomics.examples import palindrome
 
 
 @pytest.mark.parametrize(

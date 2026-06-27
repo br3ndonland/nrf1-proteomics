@@ -1,6 +1,6 @@
 import pytest
 
-from template_python.examples import fibonacci
+from nrf1_proteomics.examples import fibonacci
 
 
 @pytest.mark.parametrize(

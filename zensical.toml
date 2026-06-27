@@ -1,11 +1,11 @@
 # https://zensical.org/docs/setup/basics/
 [project]
 edit_uri = ""
-repo_name = "br3ndonland/template-python"
-repo_url = "https://github.com/br3ndonland/template-python"
-site_description = "Documentation for the template-python GitHub repo"
+repo_name = "br3ndonland/nrf1-proteomics"
+repo_url = "https://github.com/br3ndonland/nrf1-proteomics"
+site_description = "Documentation for the nrf1-proteomics GitHub repo"
 site_dir = "public"
-site_name = "template-python docs"
+site_name = "nrf1-proteomics docs"
 site_url = ""
 use_directory_urls = false
 
@@ -17,7 +17,7 @@ use_directory_urls = false
 
 [project.markdown_extensions.pymdownx.magiclink]
 user = "br3ndonland"
-repo = "template-python"
+repo = "nrf1-proteomics"
 repo_url_shorthand = true
 
 [project.markdown_extensions.pymdownx.snippets]
