@@ -9,12 +9,20 @@ classifiers = [
   "Programming Language :: Python :: 3",
   "Typing :: Typed",
 ]
-dependencies = []
+dependencies = [
+  "matplotlib>=3.10,<4",
+  "polars>=1.41,<2",
+  "scipy>=1.14,<2",
+]
 dynamic = ["version"]
 
 [project.urls]
 Homepage = "https://github.com/br3ndonland/nrf1-proteomics"
 Repository = "https://github.com/br3ndonland/nrf1-proteomics"
+
+[project.scripts]
+nrf1-proteomics = "nrf1_proteomics.analysis:main"
+nrf1-proteomics-plots = "nrf1_proteomics.plots:main"
 
 [project.optional-dependencies]
 
