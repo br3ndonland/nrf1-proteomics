@@ -51,7 +51,12 @@ nrf1_proteomics = ["src/nrf1_proteomics"]
 tests = ["tests"]
 
 [tool.hatch.build.targets.sdist]
-include = ["src", "tests"]
+include = [
+  "LICENSE",
+  "LICENSE-CODE",
+  "src",
+  "tests",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/nrf1_proteomics"]
