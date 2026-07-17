@@ -44,7 +44,7 @@ requires = ["hatchling>=1.26.3,<2"]
 build-backend = "hatchling.build"
 
 [tool.basedpyright]
-pythonVersion = "3.13"
+pythonVersion = "3.14"
 
 [tool.coverage.report]
 exclude_lines = ["if TYPE_CHECKING:", "pragma: no cover"]
