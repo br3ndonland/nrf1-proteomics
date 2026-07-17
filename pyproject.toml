@@ -31,9 +31,6 @@ checks = [
   "basedpyright>=1,<2",
   "ruff>=0.15,<0.16",
 ]
-docs = [
-  "zensical>=0.0.31",
-]
 tests = [
   "coverage[toml]>=7,<8",
   "pytest>=9,<10",
@@ -81,7 +78,6 @@ dependency-groups = [
 dev-mode = true
 dependency-groups = [
   "checks",
-  "docs",
   "tests",
 ]
 
@@ -97,12 +93,6 @@ format = [
   "ruff check --fix",
   "ruff format",
   "npx -s -y prettier@'^3' . --write",
-]
-
-[tool.hatch.envs.docs]
-dev-mode = false
-dependency-groups = [
-  "docs",
 ]
 
 [tool.hatch.envs.production]
