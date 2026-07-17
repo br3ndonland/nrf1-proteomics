@@ -6,9 +6,9 @@
 *                 text=auto eol=lf
 *.csv             text eol=crlf
 *.doc*            lfs
-*.jp*g            lfs
+*.jp*g            binary
 *.pdf             lfs
-*.png             lfs
+*.png             binary
 *.ppt*            lfs
 *.tar*            lfs
 *.xls*            lfs
