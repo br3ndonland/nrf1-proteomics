@@ -1,23 +1,5 @@
 {
     "files": {
-        "./src/nrf1_proteomics/_adjust_text.py": [
-            {
-                "code": "reportMissingTypeStubs",
-                "range": {
-                    "startColumn": 5,
-                    "endColumn": 15,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnknownVariableType",
-                "range": {
-                    "startColumn": 38,
-                    "endColumn": 58,
-                    "lineCount": 1
-                }
-            }
-        ],
         "./src/nrf1_proteomics/plots.py": [
             {
                 "code": "reportUnknownMemberType",
@@ -32,6 +14,14 @@
                 "range": {
                     "startColumn": 8,
                     "endColumn": 19,
+                    "lineCount": 1
+                }
+            },
+            {
+                "code": "reportUnknownMemberType",
+                "range": {
+                    "startColumn": 21,
+                    "endColumn": 32,
                     "lineCount": 1
                 }
             },
@@ -96,14 +86,6 @@
                 "range": {
                     "startColumn": 8,
                     "endColumn": 17,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnknownMemberType",
-                "range": {
-                    "startColumn": 8,
-                    "endColumn": 15,
                     "lineCount": 1
                 }
             }

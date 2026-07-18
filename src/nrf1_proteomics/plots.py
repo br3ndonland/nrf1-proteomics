@@ -11,8 +11,8 @@ import polars as pl
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
+from matplotlib.text import Annotation
 
-from nrf1_proteomics._adjust_text import adjust_text_labels
 from nrf1_proteomics.analysis import DEFAULT_RAW_DATA, PROJECT_ROOT, analyze_raw_data
 
 DEFAULT_FIGURE_DIR = PROJECT_ROOT / "figures"
@@ -193,6 +193,48 @@ def write_volcano_plots(
     return output_paths
 
 
+def textxy(
+    ax: Axes,
+    x: Sequence[float],
+    y: Sequence[float],
+    labels: Sequence[str],
+    *,
+    origin: tuple[float, float] = (0.0, 0.0),
+    offset_points: float = 2.0,
+    font_size: float = 8.0,
+) -> list[Annotation]:
+    """Label plot points with offset.
+
+    Uses the matplotlib annotation API similarly to `calibrate::textxy` in R.
+    Does not resolve collisions between labels.
+    """
+
+    if not (len(x) == len(y) == len(labels)):
+        message = "x, y, and labels must have the same length"
+        raise ValueError(message)
+
+    origin_x, origin_y = origin
+    annotations: list[Annotation] = []
+    for x_value, y_value, label in zip(x, y, labels, strict=True):
+        x_direction = 1.0 if x_value >= origin_x else -1.0
+        y_direction = 1.0 if y_value >= origin_y else -1.0
+        annotation = ax.annotate(
+            label,
+            xy=(x_value, y_value),
+            xytext=(x_direction * offset_points, y_direction * offset_points),
+            textcoords="offset points",
+            horizontalalignment="left" if x_direction > 0 else "right",
+            verticalalignment="bottom" if y_direction > 0 else "top",
+            fontsize=font_size,
+            color="#111827",
+            zorder=4,
+        )
+        annotation.set_in_layout(False)
+        annotations.append(annotation)
+
+    return annotations
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
     _ = parser.add_argument("--raw", type=Path, default=DEFAULT_RAW_DATA)
@@ -245,28 +287,13 @@ def _annotate_significant_genes(
 
     label_x = _float_column(label_data, "log2_fold_change")
     label_y = _float_column(label_data, "negative_log10_pvalue")
-    font_size = max(6.0, 10.0 - label_data.height / 10)
-    labels = [
-        ax.text(
-            x,
-            y,
-            gene,
-            fontsize=font_size,
-            fontweight="bold",
-            color="#111827",
-            zorder=4,
-        )
-        for x, y, gene in zip(label_x, label_y, _string_column(label_data, "Gene"))
-    ]
-    adjust_text_labels(
-        labels,
-        x=_float_column(plot_data, "log2_fold_change"),
-        y=_float_column(plot_data, "negative_log10_pvalue"),
-        objects=[legend] if (legend := ax.get_legend()) is not None else None,
-        ax=ax,
-        iter_lim=500,
-        min_arrow_len=4,
-        arrowprops={"arrowstyle": "-", "color": "#111827", "linewidth": 0.8},
+    font_size = max(6.0, 9.0 - label_data.height / 10)
+    _ = textxy(
+        ax,
+        label_x,
+        label_y,
+        _string_column(label_data, "Gene"),
+        font_size=font_size,
     )
 
 
