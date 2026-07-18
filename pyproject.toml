@@ -21,8 +21,8 @@ Homepage = "https://github.com/br3ndonland/nrf1-proteomics"
 Repository = "https://github.com/br3ndonland/nrf1-proteomics"
 
 [project.scripts]
-nrf1-proteomics = "nrf1_proteomics.analysis:main"
-nrf1-proteomics-plots = "nrf1_proteomics.plots:main"
+analyze = "nrf1_proteomics.analysis:main"
+plot = "nrf1_proteomics.plots:main"
 
 [project.optional-dependencies]
 
