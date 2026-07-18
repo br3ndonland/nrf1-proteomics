@@ -65,6 +65,7 @@
     "flox",
     "galactosidase",
     "gunicorn",
+    "hachol",
     "heredoc",
     "heredocs",
     "httpx",
