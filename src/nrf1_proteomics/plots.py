@@ -56,7 +56,7 @@ class VolcanoPlotSpec:
 VOLCANO_PLOTS = (
     VolcanoPlotSpec(
         key="ha_chol",
-        filename="proteomics-02-plot-hachol.png",
+        filename="results-hachol.png",
         x_column="log2_FC_HAchol_HAchow",
         pvalue_column="pvalue",
         title="Nrf1 AP-MS: HA cholesterol vs HA chow",
@@ -64,7 +64,7 @@ VOLCANO_PLOTS = (
     ),
     VolcanoPlotSpec(
         key="ha_bort",
-        filename="proteomics-02-plot-habort.png",
+        filename="results-habort.png",
         x_column="log2_FC_HAbort_HAchow",
         pvalue_column="pvaluebort",
         title="Nrf1 AP-MS: HA bortezomib vs HA chow",
@@ -72,7 +72,7 @@ VOLCANO_PLOTS = (
     ),
     VolcanoPlotSpec(
         key="ha_chow_lacz",
-        filename="proteomics-02-plot-hachow-lacz.png",
+        filename="results-hachow-lacz.png",
         x_column="log2_FC_HAchow_lacZ",
         pvalue_column="pvaluechow",
         title="Nrf1 AP-MS: HA chow vs lacZ",
