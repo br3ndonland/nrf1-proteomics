@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-# pyright: reportUnknownMemberType=false
 import argparse
 import math
 from collections.abc import Mapping, Sequence
@@ -13,12 +12,12 @@ from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 
+from nrf1_proteomics._adjust_text import adjust_text_labels
 from nrf1_proteomics.analysis import DEFAULT_RAW_DATA, PROJECT_ROOT, analyze_raw_data
 
 DEFAULT_FIGURE_DIR = PROJECT_ROOT / "figures"
 FOLD_CHANGE_THRESHOLD = 1.0
 PVALUE_THRESHOLD = 0.05
-LABEL_GENES = ("C1qa", "C1qb", "C1qc")
 
 BACKGROUND = "not significant"
 PVALUE_ONLY = "p < 0.05"
@@ -31,15 +30,10 @@ CATEGORY_ORDER = (
     PVALUE_AND_FOLD_CHANGE,
 )
 CATEGORY_STYLES: Mapping[str, Mapping[str, object]] = {
-    BACKGROUND: {"color": "#9aa0a6", "size": 24, "alpha": 0.58},
-    PVALUE_ONLY: {"color": "#d62728", "size": 30, "alpha": 0.82},
-    FOLD_CHANGE_ONLY: {"color": "#ff7f0e", "size": 30, "alpha": 0.82},
-    PVALUE_AND_FOLD_CHANGE: {"color": "#2ca02c", "size": 44, "alpha": 0.9},
-}
-LABEL_OFFSETS = {
-    "C1qa": (8, 12),
-    "C1qb": (8, -16),
-    "C1qc": (8, 6),
+    BACKGROUND: {"size": 24, "alpha": 0.58},
+    PVALUE_ONLY: {"size": 30, "alpha": 0.82},
+    FOLD_CHANGE_ONLY: {"size": 30, "alpha": 0.82},
+    PVALUE_AND_FOLD_CHANGE: {"size": 44, "alpha": 0.9},
 }
 
 
@@ -112,7 +106,16 @@ def prepare_volcano_data(
             .then(pl.lit(PVALUE_ONLY))
             .when(pl.col("fold_change_significant"))
             .then(pl.lit(FOLD_CHANGE_ONLY))
-            .otherwise(pl.lit(BACKGROUND))
+            .otherwise(pl.lit(BACKGROUND)),
+            point_color=pl.when(
+                pl.col("fold_change_significant") & pl.col("pvalue_significant")
+            )
+            .then(pl.lit("green"))
+            .when(pl.col("pvalue_significant"))
+            .then(pl.lit("red"))
+            .when(pl.col("fold_change_significant"))
+            .then(pl.lit("orange"))
+            .otherwise(pl.lit("black")),
         )
         .select(
             "Gene",
@@ -120,6 +123,7 @@ def prepare_volcano_data(
             "pvalue",
             "negative_log10_pvalue",
             "volcano_category",
+            "point_color",
         )
     )
 
@@ -127,7 +131,7 @@ def prepare_volcano_data(
 def plot_volcano(
     analysis: pl.DataFrame,
     spec: VolcanoPlotSpec,
-    label_genes: Sequence[str] = LABEL_GENES,
+    label_genes: Sequence[str] | None = None,
     fold_change_threshold: float = FOLD_CHANGE_THRESHOLD,
     pvalue_threshold: float = PVALUE_THRESHOLD,
 ) -> Figure:
@@ -150,19 +154,19 @@ def plot_volcano(
             _float_column(category_data, "log2_fold_change"),
             _float_column(category_data, "negative_log10_pvalue"),
             s=cast(float, style["size"]),
-            color=cast(str, style["color"]),
+            color=_string_column(category_data, "point_color"),
             alpha=cast(float, style["alpha"]),
             edgecolors="none",
             label=category,
         )
 
-    _annotate_genes(ax, plot_data, label_genes)
     _style_volcano_axes(
         ax=ax,
         spec=spec,
         fold_change_threshold=fold_change_threshold,
         pvalue_threshold=pvalue_threshold,
     )
+    _annotate_significant_genes(ax, plot_data, label_genes)
     return fig
 
 
@@ -221,46 +225,56 @@ def _style_volcano_axes(
     ax.grid(True, color="#d7dce1", linewidth=0.6, alpha=0.7)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
-    _ = ax.legend(frameon=False, loc="upper left", fontsize=8)
+    _ = ax.legend(frameon=False, loc="best", fontsize=8)
 
 
-def _annotate_genes(
-    ax: Axes, plot_data: pl.DataFrame, label_genes: Sequence[str]
+def _annotate_significant_genes(
+    ax: Axes,
+    plot_data: pl.DataFrame,
+    label_genes: Sequence[str] | None = None,
 ) -> None:
-    for gene in label_genes:
-        gene_data = plot_data.filter(pl.col("Gene") == gene)
-        if gene_data.is_empty():
-            continue
+    label_data = plot_data.filter(
+        (pl.col("volcano_category") == PVALUE_AND_FOLD_CHANGE)
+        & pl.col("Gene").is_not_null()
+        & (pl.col("Gene") != "")
+    )
+    if label_genes is not None:
+        label_data = label_data.filter(pl.col("Gene").is_in(label_genes))
+    if label_data.is_empty():
+        return
 
-        row = cast(Mapping[str, object], gene_data.row(0, named=True))
-        x = cast(float, row["log2_fold_change"])
-        y = cast(float, row["negative_log10_pvalue"])
-        offset = LABEL_OFFSETS.get(gene, (8, 8))
-        _ = ax.scatter(
-            [x],
-            [y],
-            s=70,
-            facecolors="none",
-            edgecolors="#111827",
-            linewidths=1.1,
-            zorder=4,
-        )
-        _ = ax.annotate(
+    label_x = _float_column(label_data, "log2_fold_change")
+    label_y = _float_column(label_data, "negative_log10_pvalue")
+    font_size = max(6.0, 10.0 - label_data.height / 10)
+    labels = [
+        ax.text(
+            x,
+            y,
             gene,
-            xy=(x, y),
-            xytext=offset,
-            textcoords="offset points",
-            fontsize=9,
+            fontsize=font_size,
             fontweight="bold",
             color="#111827",
-            arrowprops={
-                "arrowstyle": "-",
-                "color": "#111827",
-                "linewidth": 0.8,
-            },
+            zorder=4,
         )
+        for x, y, gene in zip(label_x, label_y, _string_column(label_data, "Gene"))
+    ]
+    adjust_text_labels(
+        labels,
+        x=_float_column(plot_data, "log2_fold_change"),
+        y=_float_column(plot_data, "negative_log10_pvalue"),
+        objects=[legend] if (legend := ax.get_legend()) is not None else None,
+        ax=ax,
+        iter_lim=500,
+        min_arrow_len=4,
+        arrowprops={"arrowstyle": "-", "color": "#111827", "linewidth": 0.8},
+    )
 
 
 def _float_column(data: pl.DataFrame, column: str) -> list[float]:
     values = cast(list[object], data.get_column(column).to_list())
     return [cast(float, value) for value in values]
+
+
+def _string_column(data: pl.DataFrame, column: str) -> list[str]:
+    values = cast(list[object], data.get_column(column).to_list())
+    return [cast(str, value) for value in values]
