@@ -1,5 +1,13 @@
 # Nrf1 proteomics
 
+## Quickstart
+
+Install [Hatch](https://hatch.pypa.io/latest/), then run the analysis from this directory.
+
+```sh
+hatch run analyze && hatch run plot
+```
+
 ## Description
 
 This repository contains data and analyses from a scientific experiment. The goal of this experiment was to identify a [molecular complex](https://en.wikipedia.org/wiki/Protein_complex) associated with [Nrf1](https://en.wikipedia.org/wiki/NFE2L1) (_NFE2L1_, not to be confused with Nuclear Respiratory Factor 1).
