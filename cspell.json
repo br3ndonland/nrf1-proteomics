@@ -34,6 +34,7 @@
     "autoformatters",
     "autoformatting",
     "basedpyright",
+    "blagoev",
     "blockquote",
     "blockquotes",
     "bortezomib's",
@@ -92,6 +93,7 @@
     "paigen",
     "paigen",
     "paigen",
+    "phosphotyrosine",
     "pipx",
     "postinstallation",
     "prereleases",
@@ -133,11 +135,11 @@
     "uniprot",
     "unittests",
     "uvicorn",
-    "wilk",
     "vendorizes",
     "venv",
     "virtualenv",
     "virtualenvs",
+    "wilk",
     "zensical"
   ]
 }
