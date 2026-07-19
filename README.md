@@ -38,7 +38,7 @@ The mice were fed either their standard chow diet or a Paigen diet which contain
 
 ### Liver ER fraction and HA IP
 
-The microsomal fraction (containing ER, where Nrf1 resides) was enriched from mouse liver lysates.
+The microsomal fraction (containing ER, where Nrf1 resides) was enriched from mouse liver lysates[^cox].
 
 ![Fractionation procedure](./figures/methods-fractionation-procedure.png)
 
@@ -195,3 +195,5 @@ Unless a file says otherwise:
 As described in the [GitHub Changelog](https://github.blog/changelog/2022-05-26-easily-discover-and-navigate-to-multiple-licenses-in-repositories/), GitHub uses [Licensee](https://github.com/licensee/licensee) to read license files.
 
 [^blagoev]: Blagoev B _et al_. [Temporal analysis of phosphotyrosine-dependent signaling networks by quantitative proteomics](https://doi.org/10.1038/nbt1005). _Nature Biotechnology_ 2004.
+
+[^cox]: Cox B, Emili A. [Tissue subcellular fractionation and protein extraction for use in mass-spectrometry-based proteomics](https://doi.org/10.1038/nprot.2006.273). _Nature Protocols_ 2006.
