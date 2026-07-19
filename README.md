@@ -72,23 +72,24 @@ Further details can be found in the IP protocol and electronic lab notebook entr
 
 A proteomics core facility, the ThermoFisher Center for Multiplexed Proteomics, performed quantitative multiplexed proteomic mass spectrometry analysis on the liver samples. The combination of immunoprecipitation (a type of affinity purification) and mass spectrometry is referred to as affinity purification-mass spectrometry (AP-MS).
 
-- Samples were provided to the proteomics core in IP elution buffer.
-- Gel
-  - The proteomics core performed a brief gel cleanup before mass spectrometry. They claimed this was helpful because the gels are agnostic to the elution buffer used to obtain the sample. However, a high protein concentration is required because of the small gel loading volume.
-  - After mass tagging, they did a 3 hour column separation prior to MS.
-  - If samples are divided among multiple runs (as these were), they include an internal "mix" standard for comparison. This is basically a small amount (5 μL) of all the samples mixed together.
-  - 30 μL of each sample was then loaded into a 10% Bis-Tris gel and run at 120V for 12 minutes.
-  - Gels were stained for 2 hours with Coomassie and destained overnight in water.
-  - Additional gels were run and stained with the remaining sample.
-  - Gel bands were cut out, destained, reduced and alkylated.
-- Enzyme digestion
-  - In-gel trypsin digestion was performed.
-- Tandem Mass Tagging
-  - Tandem Mass Tags (TMTs) were used to label primary amine groups. Ten different tags are available, allowing ten samples in the same mass spectrometry run. The tags are isobaric, meaning that they elute at the same time during LC, and have the same mass during MS1 acquisition, but after MS2 peptide sequencing, they fragment into unique ion masses during MS3 reporter ion quantification.
-- Mass spectrometry
-  - Peptides were resuspended in 5% acetonitrile, 5% formic acid.
-  - Peptides were separated using a gradient of 6 to 28% acetonitrile in 0.125% formic acid over 180 minutes.
-  - Half of the sample was shot on an Orbitrap fusion tribrid mass spectrometer.
+Samples were provided to the proteomics core in IP elution buffer.
+
+1. Gel
+   - The proteomics core performed a brief gel cleanup before mass spectrometry. They claimed this was helpful because the gels are agnostic to the elution buffer used to obtain the sample. However, a high protein concentration is required because of the small gel loading volume.
+   - After mass tagging, they did a 3 hour column separation prior to MS.
+   - If samples are divided among multiple runs (as these were), they include an internal "mix" standard for comparison. This is basically a small amount (5 μL) of all the samples mixed together.
+   - 30 μL of each sample was then loaded into a 10% Bis-Tris gel and run at 120V for 12 minutes.
+   - Gels were stained for 2 hours with Coomassie and destained overnight in water.
+   - Additional gels were run and stained with the remaining sample.
+   - Gel bands were cut out, destained, reduced and alkylated.
+2. Enzyme digestion
+   - In-gel trypsin digestion was performed.
+3. Tandem Mass Tagging
+   - Tandem Mass Tags (TMTs) were used to label primary amine groups. Ten different tags are available, allowing ten samples in the same mass spectrometry run. The tags are isobaric, meaning that they elute at the same time during LC, and have the same mass during MS1 acquisition, but after MS2 peptide sequencing, they fragment into unique ion masses during MS3 reporter ion quantification.
+4. Mass spectrometry
+   - Peptides were resuspended in 5% acetonitrile, 5% formic acid.
+   - Peptides were separated using a gradient of 6 to 28% acetonitrile in 0.125% formic acid over 180 minutes.
+   - Half of the sample was shot on an Orbitrap fusion tribrid mass spectrometer.
 
 Further details can be found in the mass spectrometry protocol and electronic lab notebook entry in the [supplementary data](#supplementary-data).
 
@@ -96,12 +97,12 @@ Further details can be found in the mass spectrometry protocol and electronic la
 
 At the proteomics core:
 
-- MS2 spectra were searched using the SEQUEST algorithm against a Uniprot composite database derived from the mouse proteome containing its reversed complement and known contaminants.
-- Peptide spectral matches were filtered to a 1% false discovery rate (FDR) using the target-decoy strategy, for determination of incorrectly identified proteins, combined with linear discriminant analysis.
-- Proteins were quantified only from peptides with a summed signal to noise (SN) threshold of ≥200 and MS2 isolation specificity of 0.5, and do not include contaminants or reverse hits.
-- The proteomics core provided an Excel workbook containing peptide counts (not sure if they are unique or total peptides), absolute and relative abundances of all proteins identified in the samples, and a PowerPoint report with methods and preliminary data analysis (hierarchical clustering performed in GENE-E, see below). They typically do not provide further assistance with data analysis.
+1. MS2 spectra were searched using the SEQUEST algorithm against a Uniprot composite database derived from the mouse proteome containing its reversed complement and known contaminants.
+2. Peptide spectral matches were filtered to a 1% false discovery rate (FDR) using the target-decoy strategy, for determination of incorrectly identified proteins, combined with linear discriminant analysis.
+3. Proteins were quantified only from peptides with a summed signal to noise (SN) threshold of ≥200 and MS2 isolation specificity of 0.5, and do not include contaminants or reverse hits.
+4. Results were provided by the core facility in a Microsoft Excel workbook containing peptide counts (not sure if they are unique or total peptides) with absolute and relative abundances of all proteins identified in the samples. They also provided a PowerPoint report with methods and preliminary data analysis such as hierarchical clustering performed in GENE-E. They typically do not provide further assistance with data analysis.
 
-Results were provided by the core facility in a Microsoft Excel workbook. Results were received on March 16, 2016.
+Results were received on March 16, 2016.
 
 There was no standardized way to analyze this type of mass spectrometry data, so a custom data analysis pipeline was developed.
 
