@@ -11,18 +11,32 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 RAW_DATA = PROJECT_ROOT / "data" / "nrf1-proteomics-raw.csv"
 
 
-def test_analysis_returns_historical_shape_and_columns() -> None:
+def test_analysis_returns_expected_shape_and_columns() -> None:
     result = analyze_raw_data(RAW_DATA)
 
-    assert result.shape == (252, 7)
+    assert result.shape == (252, 21)
     assert result.columns == [
         "Gene",
         "log2_FC_HAchol_HAchow",
         "log2_FC_HAchow_lacZ",
         "pvalue",
+        "levene_statistic_HAchol_HAchow",
+        "levene_pvalue_HAchol_HAchow",
         "pvaluechow",
+        "levene_statistic_HAchow_lacZ",
+        "levene_pvalue_HAchow_lacZ",
         "log2_FC_HAbort_HAchow",
         "pvaluebort",
+        "levene_statistic_HAbort_HAchow",
+        "levene_pvalue_HAbort_HAchow",
+        "shapiro_statistic_lacZ",
+        "shapiro_pvalue_lacZ",
+        "shapiro_statistic_HAchow",
+        "shapiro_pvalue_HAchow",
+        "shapiro_statistic_HAchol",
+        "shapiro_pvalue_HAchol",
+        "shapiro_statistic_HAbort",
+        "shapiro_pvalue_HAbort",
     ]
     assert result.filter(pl.col("Gene") == "").height == 3
 
@@ -60,6 +74,29 @@ def test_analysis_finds_expected_cholesterol_hits() -> None:
     )
 
     assert result.filter(pl.col("delta_cholesterol") > 0.58).height == 33
+
+
+def test_analysis_reports_assumption_diagnostics() -> None:
+    result = analyze_raw_data(RAW_DATA)
+
+    assert_gene_values(
+        result,
+        "C1qc",
+        levene_statistic_HAchol_HAchow=0.295478093,
+        levene_pvalue_HAchol_HAchow=0.606322291,
+        levene_statistic_HAchow_lacZ=1.129876915,
+        levene_pvalue_HAchow_lacZ=0.318832044,
+        levene_statistic_HAbort_HAchow=1.862373617,
+        levene_pvalue_HAbort_HAchow=0.221312430,
+        shapiro_statistic_lacZ=0.867348296,
+        shapiro_pvalue_lacZ=0.215838173,
+        shapiro_statistic_HAchow=0.966296036,
+        shapiro_pvalue_HAchow=0.818429709,
+        shapiro_statistic_HAchol=0.901411048,
+        shapiro_pvalue_HAchol=0.438101849,
+        shapiro_statistic_HAbort=0.878424133,
+        shapiro_pvalue_HAbort=0.331949023,
+    )
 
 
 def assert_gene_values(

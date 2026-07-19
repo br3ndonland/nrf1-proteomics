@@ -10,6 +10,12 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 RAW_DATA = PROJECT_ROOT / "data" / "nrf1-proteomics-raw.csv"
 
 
+def _passing_assumptions(
+    spec: nrf1_proteomics.plots.VolcanoPlotSpec, row_count: int
+) -> dict[str, list[float]]:
+    return {column: [0.5] * row_count for column in spec.assumption_pvalue_columns}
+
+
 def test_prepare_volcano_data_assigns_original_point_colors() -> None:
     spec = nrf1_proteomics.plots.VOLCANO_PLOTS[0]
     analysis = pl.DataFrame(
@@ -17,6 +23,7 @@ def test_prepare_volcano_data_assigns_original_point_colors() -> None:
             "Gene": ["background", "pvalue", "fold_change", "both"],
             spec.x_column: [0.5, 0.5, 1.5, 1.5],
             spec.pvalue_column: [0.5, 0.01, 0.5, 0.01],
+            **_passing_assumptions(spec, 4),
         }
     )
 
@@ -27,6 +34,36 @@ def test_prepare_volcano_data_assigns_original_point_colors() -> None:
         (nrf1_proteomics.plots.PVALUE_ONLY, "red"),
         (nrf1_proteomics.plots.FOLD_CHANGE_ONLY, "orange"),
         (nrf1_proteomics.plots.PVALUE_AND_FOLD_CHANGE, "green"),
+    ]
+
+
+def test_prepare_volcano_data_excludes_invalid_significant_results() -> None:
+    spec = nrf1_proteomics.plots.VOLCANO_PLOTS[0]
+    assumptions = _passing_assumptions(spec, 5)
+    for row_index, column in enumerate(spec.assumption_pvalue_columns):
+        assumptions[column][row_index] = 0.01
+    assumptions[spec.assumption_pvalue_columns[0]][3] = 0.01
+
+    analysis = pl.DataFrame(
+        {
+            "Gene": [
+                "levene_failure",
+                "first_shapiro_failure",
+                "second_shapiro_failure",
+                "nonsignificant_failure",
+                "valid_significant",
+            ],
+            spec.x_column: [0.5, 0.5, 1.5, 0.5, 1.5],
+            spec.pvalue_column: [0.01, 0.01, 0.01, 0.5, 0.01],
+            **assumptions,
+        }
+    )
+
+    plot_data = nrf1_proteomics.plots.prepare_volcano_data(analysis, spec)
+
+    assert plot_data.select("Gene", "volcano_category").rows() == [
+        ("nonsignificant_failure", nrf1_proteomics.plots.BACKGROUND),
+        ("valid_significant", nrf1_proteomics.plots.PVALUE_AND_FOLD_CHANGE),
     ]
 
 
@@ -51,6 +88,7 @@ def test_plot_volcano_labels_points_meeting_both_thresholds() -> None:
             "Gene": ["background", "pvalue", "fold_change", "both_a", "both_b"],
             spec.x_column: [0.5, 0.5, 1.5, 1.5, -1.5],
             spec.pvalue_column: [0.5, 0.01, 0.5, 0.01, 0.01],
+            **_passing_assumptions(spec, 5),
         }
     )
 

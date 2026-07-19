@@ -121,10 +121,10 @@ The steps performed were:
    - Background subtraction was not effective in these samples because protein abundance was greater in lacZ than HA in many cases.
    - Proteins with an HA fold change below 1 (`(HA cont/mix)/(lacZ/mix)<1`) (meaning that the proteins were higher abundance in lacZ samples without the HA tag) could potentially be excluded, but were retained for this analysis.
 5. Statistical tests
-   - A fold change of 1.5 (log2=0.58) is commonly used as a threshold for biological significance.
-   - 33 proteins had `∆Cholesterol>0.58`.
-   - T-tests were performed to identify significant hits.
-   - Analysis of Variance (ANOVA) was performed on the untransformed total summed signal to noise/mix values for all the significant hits.
+   - A fold change of 1.5 (log2=0.58) is commonly used as a threshold for biological significance and was used here.
+   - Two-sided independent Student t-tests were performed on the untransformed, mix-normalized signal ratios for HA cholesterol versus HA chow, HA bortezomib versus HA chow, and HA chow versus lacZ.
+   - Shapiro-Wilk tests were used to assess normality within each treatment group, and median-centered Levene tests were used to assess homogeneity of variance for each t-test.
+   - A result with a t-test `p<0.05` was excluded from its volcano plot if it failed the assumptions of the t-test (if its Levene test or either relevant Shapiro-Wilk test also had `p<0.05`).
 
 Further details can be found in the mass spectrometry protocol and electronic lab notebook entry in the [supplementary data](#supplementary-data).
 
@@ -138,6 +138,7 @@ In the volcano plots:
   - Red if `p<0.05` for the comparison shown
   - Orange if `[log2 fold change]>1`
   - Green if both
+- A protein with `p<0.05` is omitted if it fails the assumptions of the t-test.
 - log2 transformation is used to normalize positive and negative fold changes.
 - `-log10(pvalue)` is used so p values can be plotted as whole numbers.
 

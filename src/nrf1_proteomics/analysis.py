@@ -98,9 +98,23 @@ OUTPUT_COLUMNS = (
     "log2_FC_HAchol_HAchow",
     "log2_FC_HAchow_lacZ",
     "pvalue",
+    "levene_statistic_HAchol_HAchow",
+    "levene_pvalue_HAchol_HAchow",
     "pvaluechow",
+    "levene_statistic_HAchow_lacZ",
+    "levene_pvalue_HAchow_lacZ",
     "log2_FC_HAbort_HAchow",
     "pvaluebort",
+    "levene_statistic_HAbort_HAchow",
+    "levene_pvalue_HAbort_HAchow",
+    "shapiro_statistic_lacZ",
+    "shapiro_pvalue_lacZ",
+    "shapiro_statistic_HAchow",
+    "shapiro_pvalue_HAchow",
+    "shapiro_statistic_HAchol",
+    "shapiro_pvalue_HAchol",
+    "shapiro_statistic_HAbort",
+    "shapiro_pvalue_HAbort",
 )
 
 
@@ -214,21 +228,37 @@ def _calculate_pvalues(ratios: pl.DataFrame) -> pl.DataFrame:
 
     for raw_row in ratios.select(ratio_columns).iter_rows(named=True):
         row = cast(Mapping[str, object], raw_row)
+        lacz = _row_values(row, GROUP_RATIO_COLUMNS["lacz"])
+        ha_chow = _row_values(row, GROUP_RATIO_COLUMNS["ha_chow"])
+        ha_chol = _row_values(row, GROUP_RATIO_COLUMNS["ha_chol"])
+        ha_bort = _row_values(row, GROUP_RATIO_COLUMNS["ha_bort"])
+        chol_chow_levene = _levene_diagnostics(ha_chol, ha_chow)
+        chow_lacz_levene = _levene_diagnostics(ha_chow, lacz)
+        bort_chow_levene = _levene_diagnostics(ha_bort, ha_chow)
+        lacz_shapiro = _shapiro_diagnostics(lacz)
+        ha_chow_shapiro = _shapiro_diagnostics(ha_chow)
+        ha_chol_shapiro = _shapiro_diagnostics(ha_chol)
+        ha_bort_shapiro = _shapiro_diagnostics(ha_bort)
         rows.append(
             {
                 "protein_id": str(row["protein_id"]),
-                "pvalue": _t_test_pvalue(
-                    _row_values(row, GROUP_RATIO_COLUMNS["ha_chol"]),
-                    _row_values(row, GROUP_RATIO_COLUMNS["ha_chow"]),
-                ),
-                "pvaluechow": _t_test_pvalue(
-                    _row_values(row, GROUP_RATIO_COLUMNS["ha_chow"]),
-                    _row_values(row, GROUP_RATIO_COLUMNS["lacz"]),
-                ),
-                "pvaluebort": _t_test_pvalue(
-                    _row_values(row, GROUP_RATIO_COLUMNS["ha_bort"]),
-                    _row_values(row, GROUP_RATIO_COLUMNS["ha_chow"]),
-                ),
+                "pvalue": _t_test_pvalue(ha_chol, ha_chow),
+                "levene_statistic_HAchol_HAchow": chol_chow_levene[0],
+                "levene_pvalue_HAchol_HAchow": chol_chow_levene[1],
+                "pvaluechow": _t_test_pvalue(ha_chow, lacz),
+                "levene_statistic_HAchow_lacZ": chow_lacz_levene[0],
+                "levene_pvalue_HAchow_lacZ": chow_lacz_levene[1],
+                "pvaluebort": _t_test_pvalue(ha_bort, ha_chow),
+                "levene_statistic_HAbort_HAchow": bort_chow_levene[0],
+                "levene_pvalue_HAbort_HAchow": bort_chow_levene[1],
+                "shapiro_statistic_lacZ": lacz_shapiro[0],
+                "shapiro_pvalue_lacZ": lacz_shapiro[1],
+                "shapiro_statistic_HAchow": ha_chow_shapiro[0],
+                "shapiro_pvalue_HAchow": ha_chow_shapiro[1],
+                "shapiro_statistic_HAchol": ha_chol_shapiro[0],
+                "shapiro_pvalue_HAchol": ha_chol_shapiro[1],
+                "shapiro_statistic_HAbort": ha_bort_shapiro[0],
+                "shapiro_pvalue_HAbort": ha_bort_shapiro[1],
             }
         )
 
@@ -260,3 +290,27 @@ def _t_test_pvalue(sample: Sequence[float], reference: Sequence[float]) -> float
             alternative="two-sided",
         )[1],
     )
+
+
+def _levene_diagnostics(
+    sample: Sequence[float], reference: Sequence[float]
+) -> tuple[float, float]:
+    """Report homogeneity of variance for each Student t-test.
+
+    A median-centered Levene test is used because it is robust to skew and outliers.
+    A variance-ratio F test is sensitive to departures from normality.
+    """
+
+    result = scipy.stats.levene(sample, reference, center="median")
+    return cast(float, result.statistic), cast(float, result.pvalue)
+
+
+def _shapiro_diagnostics(sample: Sequence[float]) -> tuple[float, float]:
+    """Report normality for observations within one treatment group.
+
+    Student t-tests assume normally distributed populations. Shapiro-Wilk is applied to
+    each group's raw observations rather than pooling groups with different means.
+    """
+
+    result = scipy.stats.shapiro(sample)
+    return cast(float, result.statistic), cast(float, result.pvalue)

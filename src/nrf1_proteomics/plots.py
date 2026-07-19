@@ -18,6 +18,7 @@ from nrf1_proteomics.analysis import DEFAULT_RAW_DATA, PROJECT_ROOT, analyze_raw
 DEFAULT_FIGURE_DIR = PROJECT_ROOT / "figures"
 FOLD_CHANGE_THRESHOLD = 1.0
 PVALUE_THRESHOLD = 0.05
+ASSUMPTION_PVALUE_THRESHOLD = 0.05
 
 BACKGROUND = "not significant"
 PVALUE_ONLY = "p < 0.05"
@@ -43,6 +44,7 @@ class VolcanoPlotSpec:
     filename: str
     x_column: str
     pvalue_column: str
+    assumption_pvalue_columns: tuple[str, ...]
     title: str
     xlabel: str
 
@@ -53,6 +55,11 @@ VOLCANO_PLOTS = (
         filename="results-hachol.png",
         x_column="log2_FC_HAchol_HAchow",
         pvalue_column="pvalue",
+        assumption_pvalue_columns=(
+            "levene_pvalue_HAchol_HAchow",
+            "shapiro_pvalue_HAchol",
+            "shapiro_pvalue_HAchow",
+        ),
         title="Nrf1 AP-MS: HA cholesterol vs HA chow",
         xlabel="log2(FC HA chol/HA chow)",
     ),
@@ -61,6 +68,11 @@ VOLCANO_PLOTS = (
         filename="results-habort.png",
         x_column="log2_FC_HAbort_HAchow",
         pvalue_column="pvaluebort",
+        assumption_pvalue_columns=(
+            "levene_pvalue_HAbort_HAchow",
+            "shapiro_pvalue_HAbort",
+            "shapiro_pvalue_HAchow",
+        ),
         title="Nrf1 AP-MS: HA bortezomib vs HA chow",
         xlabel="log2(FC HA bort/HA chow)",
     ),
@@ -69,6 +81,11 @@ VOLCANO_PLOTS = (
         filename="results-hachow-lacz.png",
         x_column="log2_FC_HAchow_lacZ",
         pvalue_column="pvaluechow",
+        assumption_pvalue_columns=(
+            "levene_pvalue_HAchow_lacZ",
+            "shapiro_pvalue_HAchow",
+            "shapiro_pvalue_lacZ",
+        ),
         title="Nrf1 AP-MS: HA chow vs lacZ",
         xlabel="log2(FC HA chow/lacZ)",
     ),
@@ -80,14 +97,25 @@ def prepare_volcano_data(
     spec: VolcanoPlotSpec,
     fold_change_threshold: float = FOLD_CHANGE_THRESHOLD,
     pvalue_threshold: float = PVALUE_THRESHOLD,
+    assumption_pvalue_threshold: float = ASSUMPTION_PVALUE_THRESHOLD,
 ) -> pl.DataFrame:
-    """Add plotting columns for one volcano plot from an analyzed DataFrame."""
+    """Add plotting columns and omit significant rows that fail assumptions."""
 
     fold_change_significant = pl.col("log2_fold_change").abs() > fold_change_threshold
     pvalue_significant = pl.col("pvalue") < pvalue_threshold
+    assumption_failed = pl.any_horizontal(
+        *(
+            pl.col(column) < assumption_pvalue_threshold
+            for column in spec.assumption_pvalue_columns
+        )
+    )
+    significant_assumption_failure = (
+        pl.col(spec.pvalue_column) < pvalue_threshold
+    ) & assumption_failed
 
     return (
-        analysis.select(
+        analysis.filter(~significant_assumption_failure)
+        .select(
             "Gene",
             pl.col(spec.x_column).alias("log2_fold_change"),
             pl.col(spec.pvalue_column).alias("pvalue"),
@@ -134,6 +162,7 @@ def plot_volcano(
     label_genes: Sequence[str] | None = None,
     fold_change_threshold: float = FOLD_CHANGE_THRESHOLD,
     pvalue_threshold: float = PVALUE_THRESHOLD,
+    assumption_pvalue_threshold: float = ASSUMPTION_PVALUE_THRESHOLD,
 ) -> Figure:
     """Create a volcano plot from an analyzed Polars DataFrame."""
 
@@ -142,6 +171,7 @@ def plot_volcano(
         spec=spec,
         fold_change_threshold=fold_change_threshold,
         pvalue_threshold=pvalue_threshold,
+        assumption_pvalue_threshold=assumption_pvalue_threshold,
     )
     fig, ax = plt.subplots(figsize=(7.2, 5.2), dpi=150, constrained_layout=True)
 
