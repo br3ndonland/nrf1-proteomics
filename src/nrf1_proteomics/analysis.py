@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import cast
 
 import polars as pl
-from scipy import stats
+import scipy.stats
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_RAW_DATA = PROJECT_ROOT / "data" / "nrf1-proteomics-raw.csv"
@@ -253,7 +253,7 @@ def _row_values(row: Mapping[str, object], columns: Sequence[str]) -> list[float
 def _t_test_pvalue(sample: Sequence[float], reference: Sequence[float]) -> float:
     return cast(
         float,
-        stats.ttest_ind(
+        scipy.stats.ttest_ind(
             sample,
             reference,
             equal_var=True,
