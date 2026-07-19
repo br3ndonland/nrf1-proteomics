@@ -121,7 +121,7 @@ The steps performed were:
    - Background subtraction was not effective in these samples because protein abundance was greater in lacZ than HA in many cases.
    - Proteins with an HA fold change below 1 (`(HA cont/mix)/(lacZ/mix)<1`) (meaning that the proteins were higher abundance in lacZ samples without the HA tag) could potentially be excluded, but were retained for this analysis.
 5. Statistical tests
-   - A fold change of 1.5 (log2=0.58) is commonly used as a threshold for biological significance and was used here.
+   - A fold change of 1.5 (log2=0.58) is commonly used as a threshold for biological significance[^blagoev] [^margolin] and was used here.
    - Two-sided independent Student t-tests were performed on the untransformed, mix-normalized signal ratios for HA cholesterol versus HA chow, HA bortezomib versus HA chow, and HA chow versus lacZ.
    - Shapiro-Wilk tests were used to assess normality within each treatment group, and median-centered Levene tests were used to assess homogeneity of variance for each t-test.
    - A result with a t-test `p<0.05` was excluded from its volcano plot if it failed the assumptions of the t-test (if its Levene test or either relevant Shapiro-Wilk test also had `p<0.05`).
@@ -193,3 +193,7 @@ Unless a file says otherwise:
 - Data files are included for analysis provenance. Repository-level licenses do not grant rights to third-party material that may be present in data files.
 
 As described in the [GitHub Changelog](https://github.blog/changelog/2022-05-26-easily-discover-and-navigate-to-multiple-licenses-in-repositories/), GitHub uses [Licensee](https://github.com/licensee/licensee) to read license files.
+
+[^blagoev]: Blagoev B _et al_. [Temporal analysis of phosphotyrosine-dependent signaling networks by quantitative proteomics](https://doi.org/10.1038/nbt1005). _Nature Biotechnology_ 2004.
+
+[^margolin]: Margolin AA _et al_. [Empirical Bayes analysis of quantitative proteomics experiments](https://doi.org/10.1371/journal.pone.0007454). _PLoS One_ 2009.
