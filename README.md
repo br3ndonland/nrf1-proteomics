@@ -77,8 +77,8 @@ Samples were provided to the proteomics core in IP elution buffer.
 1. Gel
    - The proteomics core performed a brief gel cleanup before mass spectrometry. They claimed this was helpful because the gels are agnostic to the elution buffer used to obtain the sample. However, a high protein concentration is required because of the small gel loading volume.
    - After mass tagging, they did a 3 hour column separation prior to MS.
-   - If samples are divided among multiple runs (as these were), they include an internal "mix" standard for comparison. This is basically a small amount (5 μL) of all the samples mixed together.
-   - 30 μL of each sample was then loaded into a 10% Bis-Tris gel and run at 120V for 12 minutes.
+   - If samples are divided among multiple runs (as these were), they include an internal "mix" standard for comparison. This is basically a small amount (5 uL) of all the samples mixed together.
+   - 30 uL of each sample was then loaded into a 10% Bis-Tris gel and run at 120V for 12 minutes.
    - Gels were stained for 2 hours with Coomassie and destained overnight in water.
    - Additional gels were run and stained with the remaining sample.
    - Gel bands were cut out, destained, reduced and alkylated.
@@ -99,7 +99,7 @@ At the proteomics core:
 
 1. MS2 spectra were searched using the SEQUEST algorithm against a Uniprot composite database derived from the mouse proteome containing its reversed complement and known contaminants.
 2. Peptide spectral matches were filtered to a 1% false discovery rate (FDR) using the target-decoy strategy, for determination of incorrectly identified proteins, combined with linear discriminant analysis.
-3. Proteins were quantified only from peptides with a summed signal to noise (SN) threshold of ≥200 and MS2 isolation specificity of 0.5, and do not include contaminants or reverse hits.
+3. Proteins were quantified only from peptides with a summed signal to noise (SN) threshold of at least 200 and MS2 isolation specificity of 0.5, and do not include contaminants or reverse hits.
 4. Results were provided by the core facility in a Microsoft Excel workbook containing peptide counts (not sure if they are unique or total peptides) with absolute and relative abundances of all proteins identified in the samples. They also provided a PowerPoint report with methods and preliminary data analysis such as hierarchical clustering performed in GENE-E. They typically do not provide further assistance with data analysis.
 
 Results were received on March 16, 2016.
