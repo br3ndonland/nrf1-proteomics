@@ -11,7 +11,7 @@ classifiers = [
 ]
 dependencies = [
   "matplotlib>=3.10,<4",
-  "polars>=1.41,<2",
+  "polars[numpy]>=1.41,<2",
   "scipy>=1.14,<2",
 ]
 dynamic = ["version"]
@@ -60,12 +60,16 @@ tests = ["tests"]
 include = [
   "LICENSE",
   "LICENSE-CODE",
+  "data/nrf1-proteomics-raw.csv",
   "src",
   "tests",
 ]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/nrf1_proteomics"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"data/nrf1-proteomics-raw.csv" = "nrf1_proteomics/data/nrf1-proteomics-raw.csv"
 
 [tool.hatch.envs.ci]
 builder = true
