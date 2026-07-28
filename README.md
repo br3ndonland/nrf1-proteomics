@@ -42,7 +42,7 @@ The microsomal fraction (containing ER, where Nrf1 resides) was enriched from mo
 
 ![Fractionation procedure](./figures/methods-fractionation-procedure.png)
 
-![Fractionation results*](./figures/methods-fractionation-results.png)
+![Fractionation results](./figures/methods-fractionation-results.png)
 
 The Western blots display protein markers of different [cellular compartments](https://en.wikipedia.org/wiki/Cellular_compartment):
 
@@ -95,6 +95,8 @@ Further details can be found in the mass spectrometry protocol and electronic la
 
 ### Data analysis
 
+#### Proteomics core
+
 At the proteomics core:
 
 1. MS2 spectra were searched using the SEQUEST algorithm against a Uniprot composite database derived from the mouse proteome containing its reversed complement and known contaminants.
@@ -104,75 +106,140 @@ At the proteomics core:
 
 Results were received on March 16, 2016.
 
-There was no standardized way to analyze this type of mass spectrometry data, so a custom data analysis pipeline was developed.
+#### Original analysis
 
-The steps performed were:
+At the time, there was no standardized way to analyze this type of mass spectrometry data, so a custom data analysis pipeline was developed. Its purpose was to normalize the two TMT runs, remove weak protein identifications, compare the treatment groups, and identify candidates for follow-up.
 
-1. Normalization
-   - To compare results across multiple runs, the total summed signal to noise (or normalized relative abundance) for each sample was divided by the corresponding value for the mix standard within that run.
-   - This creates a ratio, and log2 transformation should be performed before further analysis.
-2. Filtration
-   - The hit list was filtered to exclude proteins with ≤2 peptides quantified in all runs.
-   - Including only proteins with ≥2 peptides means the identification of the protein itself is confident, because multiple peptides corresponding to it have been identified, and that the identification of the protein is repeatable, because ≥2 peptides were detected in each mass spectrometry run.
-3. Transformation
-   - log2 transformation was used.
-   - `∆Cholesterol=log2((HA chol/mix)/(HA cont/mix))-log2((HA cont/mix)/(lacZ/mix))`
-4. Background subtraction
-   - Background subtraction was not effective in these samples because protein abundance was greater in lacZ than HA in many cases.
-   - Proteins with an HA fold change below 1 (`(HA cont/mix)/(lacZ/mix)<1`) (meaning that the proteins were higher abundance in lacZ samples without the HA tag) could potentially be excluded, but were retained for this analysis.
-5. Statistical tests
-   - A fold change of 1.5 (log2=0.58) has been suggested as a threshold for biological significance[^blagoev] and was used here.
-   - Two-sided independent Student t-tests were performed on the untransformed, mix-normalized signal ratios for HA cholesterol versus HA chow, HA bortezomib versus HA chow, and HA chow versus lacZ.
-   - Shapiro-Wilk tests were used to assess normality within each treatment group, and median-centered Levene tests were used to assess homogeneity of variance for each t-test.
-   - A result with a t-test `p<0.05` was excluded from its volcano plot if it failed the assumptions of the t-test (if its Levene test or either relevant Shapiro-Wilk test also had `p<0.05`).
+The original steps were:
 
-Further details can be found in the mass spectrometry protocol and electronic lab notebook entry in the [supplementary data](#supplementary-data).
+1. Normalize to the pooled mix
+   - Divide each sample's total summed signal to noise by the pooled mix measurement from the same TMT run.
+   - Log2-transform the resulting ratios before analysis.
+2. Filter proteins
+   - Retain proteins supported by multiple quantified peptides across the two runs.
+   - The intent was to favor confident and repeatable protein identifications.
+3. Calculate fold changes
+   - Compare HA cholesterol with HA chow, HA bortezomib with HA chow, and HA chow with lacZ.
+   - The cholesterol calculation also explored subtracting the HA chow versus lacZ background from the HA cholesterol versus HA chow effect: `delta_cholesterol = log2((HA chol/mix)/(HA cont/mix)) - log2((HA cont/mix)/(lacZ/mix))`.
+4. Evaluate background
+   - Background subtraction was not effective because many proteins were more abundant in lacZ than in HA samples.
+   - Proteins with lower abundance in HA chow than lacZ were therefore retained rather than removed as background.
+5. Test candidate differences
+   - Use a historical 1.5-fold threshold, equivalent to `log2(1.5)=0.585`, as a marker of potential biological importance.[^blagoev]
+   - Apply two-sided independent Student t-tests to the untransformed, mix-normalized ratios.
+   - Check group normality with Shapiro-Wilk tests and variance homogeneity with median-centered Levene tests.
+   - Omit a nominally significant result from its volcano plot when a corresponding assumption test also had `p<0.05`.
+
+This exploratory workflow produced the original figures and the C1q hypothesis described below.
+
+#### Why a new analysis was needed
+
+The original analysis was useful for identifying candidate proteins, but was not adequate for screen-wide statistical inference.
+
+- The core facility's 1% target-decoy false discovery rate controls errors in identifying peptides and proteins. It does not control false discoveries when hundreds of identified proteins are subsequently tested for treatment effects.
+- Applying a separate `p<0.05` t-test to every protein without a multiple-testing correction makes chance findings increasingly likely as the number of proteins grows. The proteins need not be compared directly for this multiplicity to arise.
+- Independent t-tests did not model the two TMT runs as experimental blocks. They also estimated a separate variance from only four to six mice per group, making protein-wise uncertainty unstable.
+- Dividing by the pooled mix was a reasonable cross-run normalization strategy, but the pooled channel is a technical reference rather than an independent biological replicate. The updated model can represent run directly while retaining the mix ratios as a sensitivity analysis.
+- Diagnostic p-values do not provide a reliable pass/fail gate for model validity. Removing proteins because a Shapiro-Wilk or Levene test is significant makes the reported result depend on another low-powered hypothesis test.
+- Combining an observed fold-change cutoff with a conventional p-value cutoff does not formally test whether the true effect exceeds that fold change. A threshold test must include the uncertainty in the effect estimate.[^mccarthy]
+
+#### Updated statistical analysis
+
+An updated analysis was performed based on the scientific literature using [Codex](https://openai.com/codex/) with the [K-Dense Scientific Agent Skills](https://github.com/K-Dense-AI/scientific-agent-skills). The updated analysis performs the following steps:
+
+1. Ingest and audit
+   - Read sample labels, reporter tags, and TMT run identifiers from the 25-column export.
+   - Represent the 18 biological channels as independent mice: lacZ `n=6`, and HA chow, HA cholesterol, and HA bortezomib `n=4` each.
+   - Require at least two quantified peptides in each run and positive measurements in all 18 biological channels. This leaves 252 of 633 proteins for the primary analysis. No values are imputed.
+   - Retain every raw protein in a filter-audit table with its inclusion status and exclusion reason.
+2. Transform and normalize
+   - Log2-transform each individual biological reporter signal-to-noise value.
+   - Median-center each biological channel to a common grand median across eligible proteins.
+   - Exclude pooled mix channels from the primary model because they are technical references, not biological replicates.
+3. Fit blocked protein-wise models
+   - Fit all four groups together with `log2_abundance ~ 0 + treatment + TMT_run`, following the individual-channel and block-modeling principles described by Oberg et al.[^oberg]
+   - Estimate the three planned contrasts from the same model: HA cholesterol minus HA chow, HA bortezomib minus HA chow, and HA chow minus lacZ.
+   - Moderate protein-wise residual variances with an abundance trend and robust empirical Bayes estimation.[^smyth] [^kammers]
+4. Control false discoveries and report effects
+   - Apply the Benjamini-Hochberg procedure across all 252 eligible proteins separately within each planned contrast.[^bh]
+   - Adjust the omnibus F-test across proteins as its own family without using it to gate the planned contrasts.
+   - Report model-adjusted fold changes, 95% confidence intervals, moderated statistics, raw p-values, Benjamini-Hochberg q-values, and discovery status.
+   - Use tests against zero as primary inference. As a sensitivity analysis, use TREAT ("t-tests relative to a threshold")[^mccarthy] to test a more demanding question: whether the data support a true effect larger than 1.5-fold in either direction. TREAT treats effects between `-log2(1.5)` and `+log2(1.5)` as too small. An observed fold change outside that interval is not enough by itself; its uncertainty must also support an effect beyond the threshold.
+5. Diagnose and test sensitivity
+   - Retain Shapiro-Wilk, Brown-Forsythe, and Cook distance warnings as annotations. They never remove proteins or alter statistical results.
+   - Repeat the contrasts without median centering, with pooled-mix log2 ratios, with standard non-robust and non-trended empirical Bayes, and with a relaxed one-peptide set.
+
+Run the pipeline with the default paths:
+
+```sh
+hatch run analyze && hatch run plot
+```
+
+The `analyze` command writes normalized data, long-form contrast results, omnibus results, diagnostics, filter audit, sensitivity results, sample metadata, and a JSON summary under the operating system's temporary directory at `nrf1-proteomics/derived/`. Pass `--output-dir` to retain the artifacts elsewhere. The plot command writes PNG figures, with SVG available optionally. Use repeated `--format png` or `--format svg` options to request desired formats.
 
 ## Results
 
-**Complement C1q proteins were identified as potentially interacting with Nrf1.**
+### Complement C1q A, B, and C are candidate Nrf1 interacting proteins, but are not screen-wide significant
 
-In the volcano plots:
+The original analysis identified Complement C1q proteins as potentially interacting with Nrf1 in cholesterol-fed mice.
 
-- Each point is a protein.
-  - Red if `p<0.05` for the comparison shown
-  - Orange if `[log2 fold change]>1`
-  - Green if both
-- A protein with `p<0.05` is omitted if it fails the assumptions of the t-test.
-- log2 transformation is used to normalize positive and negative fold changes.
-- `-log10(pvalue)` is used so p values can be plotted as whole numbers.
+![Original volcano plot comparing cholesterol-fed mice with chow-fed control mice](./figures/results-cholesterol-original.png)
 
-### Complement C1q A,B, and C were increased in abundance in cholesterol-fed mice
+_Figure: original volcano plot comparing cholesterol-fed mice with chow-fed control mice._ This analysis compared chow-fed mice with mice fed the Paigen diet. Each point is a protein. Red indicates a nominal t-test `p<0.05`, orange indicates an absolute log2 fold change greater than 1, and green indicates both. Proteins that failed statistical assumptions were omitted. Log2 fold changes placed increases and decreases on a symmetric scale on the x-axis, while `-log10(p-value)` placed smaller p-values higher on the plot on the y-axis. C1qa, C1qb, and C1qc combined nominal p-values below 0.05 with large observed fold changes, making them prominent candidates for biological validation.
 
-![Volcano plot comparing cholesterol-fed mice with chow-fed control mice](./figures/results-cholesterol-original.png)
+The updated analysis found no Benjamini-Hochberg discoveries for HA cholesterol versus HA chow. In the TREAT sensitivity analysis, no protein had sufficient evidence that its true effect exceeded 1.5-fold.
 
-_Figure: volcano plot comparing cholesterol-fed mice with chow-fed control mice._ This plot compares chow-fed mice with mice fed the Paigen diet to promote accumulation of cholesterol in the liver, and demonstrates the increased abundance of Complement C1qA, C1qB, and C1qC in mice fed the Paigen diet.
+![Updated volcano plot comparing cholesterol-fed mice with chow-fed control mice](./figures/results-cholesterol.png)
+
+_Figure: updated volcano plot comparing cholesterol-fed mice with chow-fed control mice._ The direction of the C1q result is preserved, but C1qa, C1qb, and C1qc are no longer presented as screen-wide discoveries. The updated volcano plots contain all 252 primary proteins. The x-axis is the model-adjusted log2 fold change and the y-axis is `-log10(raw moderated p-value)`. Red and blue points are discoveries with a Benjamini-Hochberg q-value below 0.05; gray points have `q>=0.05` and are not screen-wide discoveries. A hollow outline is a diagnostic flag: the residuals showed possible non-normality by Shapiro-Wilk `p<0.05`, possible variance heterogeneity across treatment groups by Brown-Forsythe `p<0.05`, or an influential observation with Cook distance above `4/(n-p)`. A flag is not proof that an assumption failed and does not remove the protein or alter its p-value, q-value, or discovery status.
+
+C1qa, C1qb, and C1qc have estimated cholesterol effects of 1.12, 0.99, and 1.27 log2 units, respectively. These point estimates correspond to roughly twofold increases, and their raw moderated p-values range from 0.013 to 0.031. The updated analysis therefore does not erase the original pattern.
+
+The evidence is not strong enough for either of the two claims required of a screen-wide result:
+
+1. After accounting for the 252 protein hypotheses with the Benjamini-Hochberg procedure, none of the C1q proteins has `q<0.05`.
+2. Although each point estimate exceeds the historical 1.5-fold threshold, its 95% confidence interval extends below `log2(1.5)=0.585`. The lower confidence limits are only 0.12 for C1qa, 0.10 for C1qb, and 0.30 for C1qc. The data therefore do not establish that the true effects are at least 1.5-fold.
+
+This distinction is why the original volcano plot looked compelling while the updated inference is cautious: observed effect size, uncertainty in that effect, and false-discovery control are now evaluated separately.
+
+![Normalized C1q mouse-level observations](./figures/results-c1q.png)
+
+_Figure: normalized C1q observations._ Points show every mouse, marker shape identifies the TMT run, and black intervals show group means with 95% intervals. The observations show the direction and between-mouse variability behind the model estimates. These plots help show why the C1q estimates are not screen-wide significant: their intervals extend inside the threshold even though their point estimates exceed it.
+
+![Leading effects ranked by Benjamini-Hochberg q-value](./figures/results-effect-sizes.png)
+
+_Figure: leading effect estimates._ Points and intervals show model-adjusted log2 fold changes and 95% confidence intervals. The dashed vertical lines mark the 1.5-fold TREAT thresholds. Again here, the cholesterol panel shows why the C1q estimates do not meet this minimum-effect test: their intervals extend inside the threshold even though their point estimates exceed it.
+
+![Prespecified sensitivity analyses](./figures/results-sensitivity.png)
+
+_Figure: sensitivity analyses._ Discovery counts vary with normalization and empirical Bayes settings, while median absolute changes in effect estimates remain small. Sensitivity results assess robustness; they are not used to rescue primary non-discoveries.
 
 ### Bortezomib alters the proteome
 
-![Volcano plot comparing Bortezomib-treated mice with control mice](./figures/results-bortezomib-original.png)
+![Updated volcano plot comparing bortezomib-treated mice with control mice](./figures/results-bortezomib.png)
 
-_Figure: volcano plot comparing Bortezomib-treated mice with control mice._ Bortezomib treatment alters the proteome. This is expected given Bortezomib's function as a proteasome inhibitor.
+_Figure: volcano plot comparing Bortezomib-treated mice with control mice._ The positive-control response remains strong after modeling the TMT run, moderating protein-wise variances, and controlling the false discovery rate. The widespread response is expected because bortezomib inhibits the proteasome and activates Nrf1. The x-axis is the model-adjusted log2 fold change and the y-axis is `-log10(raw moderated p-value)`. Red and blue points are discoveries with a Benjamini-Hochberg q-value below 0.05; gray points have `q>=0.05` and are not screen-wide discoveries. A hollow outline is a diagnostic flag: the residuals showed possible non-normality by Shapiro-Wilk `p<0.05`, possible variance heterogeneity across treatment groups by Brown-Forsythe `p<0.05`, or an influential observation with Cook distance above `4/(n-p)`. A flag is not proof that an assumption failed and does not remove the protein or alter its p-value, q-value, or discovery status.
 
 ## Limitations
 
-![Nrf1 proteomics experiment limitations](./figures/results-limitations.png)
-
 - Low and inconsistent protein pulldown with the HA tag immunoprecipitation. As a result, the proteome was basically the same with (Nrf1-HA adenovirus) or without (lacZ adenovirus) the tagged protein.
 - The proteome was not significantly different with or without the HA tag, indicating issues with the HA immunoprecipitation.
+- Western blot did not clearly validate the mass spectrometry findings.
 - Cluster analysis in Morpheus revealed that the samples did not cluster by treatment group as expected.
 - The mass spec core facility required protein to be eluted from agarose immunoprecipitation beads, and then ran the samples on gels, which introduces variability and requires a higher protein concentration than it was possible to provide in these samples. They also had a slow turnaround time, taking over two months to analyze the samples.
 
-![Nrf1 proteomics C1q Western blot](./figures/results-validation.png)
+![Nrf1 proteomics experiment limitations](./figures/results-limitations.png)
 
-_Figure: Nrf1 proteomics C1q Western blot. IP, immunoprecipitation; IB, immunoblot (Western blot)._ Western blot did not clearly validate the mass spectrometry findings.
+![Nrf1 proteomics C1q Western blot](./figures/results-validation.png)
 
 ## Next steps
 
-![Nrf1 proteomics next steps](./figures/next-steps.png)
-
 - Immunoprecipitation of Nrf1 directly instead of the HA tag. This would allow use of Nrf1 liver knockout mice directly without the need for adenovirus. Analysis would include livers with and without Nrf1 (Nrf1 flox Albumin Cre), with and without cholesterol diet, in order to identify cholesterol-responsive Nrf1 interacting proteins.
 - Switching to a different mass spectrometry core with a quicker turnaround time that does not require protein elution from beads or running samples through gels.
+
+![Nrf1 proteomics next steps](./figures/next-steps.png)
+
+![Nrf1 proteomics next steps](./figures/next-steps-fractionation-procedure.png)
 
 ## Supplementary data
 
@@ -196,4 +263,14 @@ As described in the [GitHub Changelog](https://github.blog/changelog/2022-05-26-
 
 [^blagoev]: Blagoev B _et al_. [Temporal analysis of phosphotyrosine-dependent signaling networks by quantitative proteomics](https://doi.org/10.1038/nbt1005). _Nature Biotechnology_ 2004.
 
+[^bh]: Benjamini Y, Hochberg Y. [Controlling the false discovery rate: a practical and powerful approach to multiple testing](https://doi.org/10.1111/j.2517-6161.1995.tb02031.x). _Journal of the Royal Statistical Society Series B_ 1995.
+
 [^cox]: Cox B, Emili A. [Tissue subcellular fractionation and protein extraction for use in mass-spectrometry-based proteomics](https://doi.org/10.1038/nprot.2006.273). _Nature Protocols_ 2006.
+
+[^kammers]: Kammers K _et al_. [Detecting significant changes in protein abundance](https://doi.org/10.1002/pmic.201400392). _Proteomics_ 2015.
+
+[^mccarthy]: McCarthy DJ, Smyth GK. [Testing significance relative to a fold-change threshold is a TREAT](https://doi.org/10.1093/bioinformatics/btp053). _Bioinformatics_ 2009.
+
+[^oberg]: Oberg AL _et al_. [Statistical analysis of relative labeled mass spectrometry data from complex samples using ANOVA](https://doi.org/10.1021/pr700734f). _Journal of Proteome Research_ 2008.
+
+[^smyth]: Smyth GK. [Linear models and empirical Bayes methods for assessing differential expression in microarray experiments](https://doi.org/10.2202/1544-6115.1027). _Statistical Applications in Genetics and Molecular Biology_ 2004.
