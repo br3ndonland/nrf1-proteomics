@@ -2,7 +2,7 @@
 
 _Proteomics experiments and reproducible data analysis_
 
-<img src="./figures/results-hachol.png" alt="Volcano plot comparing cholesterol-fed mice with chow-fed control mice" width="50%" />
+<img src="./figures/results-cholesterol-original.png" alt="Volcano plot comparing cholesterol-fed mice with chow-fed control mice" width="50%" />
 
 ## Quickstart
 
@@ -144,13 +144,13 @@ In the volcano plots:
 
 ### Complement C1q A,B, and C were increased in abundance in cholesterol-fed mice
 
-![Volcano plot comparing cholesterol-fed mice with chow-fed control mice](./figures/results-hachol.png)
+![Volcano plot comparing cholesterol-fed mice with chow-fed control mice](./figures/results-cholesterol-original.png)
 
 _Figure: volcano plot comparing cholesterol-fed mice with chow-fed control mice._ This plot compares chow-fed mice with mice fed the Paigen diet to promote accumulation of cholesterol in the liver, and demonstrates the increased abundance of Complement C1qA, C1qB, and C1qC in mice fed the Paigen diet.
 
 ### Bortezomib alters the proteome
 
-![Volcano plot comparing Bortezomib-treated mice with control mice](./figures/results-habort.png)
+![Volcano plot comparing Bortezomib-treated mice with control mice](./figures/results-bortezomib-original.png)
 
 _Figure: volcano plot comparing Bortezomib-treated mice with control mice._ Bortezomib treatment alters the proteome. This is expected given Bortezomib's function as a proteasome inhibitor.
 

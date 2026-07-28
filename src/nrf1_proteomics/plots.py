@@ -52,7 +52,7 @@ class VolcanoPlotSpec:
 VOLCANO_PLOTS = (
     VolcanoPlotSpec(
         key="ha_chol",
-        filename="results-hachol.png",
+        filename="results-cholesterol-original.png",
         x_column="log2_FC_HAchol_HAchow",
         pvalue_column="pvalue",
         assumption_pvalue_columns=(
@@ -60,12 +60,12 @@ VOLCANO_PLOTS = (
             "shapiro_pvalue_HAchol",
             "shapiro_pvalue_HAchow",
         ),
-        title="Nrf1 AP-MS: HA cholesterol vs HA chow",
-        xlabel="log2(FC HA chol/HA chow)",
+        title="Nrf1 proteomics - cholesterol vs. chow",
+        xlabel="log2 fold change (cholesterol/chow)",
     ),
     VolcanoPlotSpec(
         key="ha_bort",
-        filename="results-habort.png",
+        filename="results-bortezomib-original.png",
         x_column="log2_FC_HAbort_HAchow",
         pvalue_column="pvaluebort",
         assumption_pvalue_columns=(
@@ -73,12 +73,12 @@ VOLCANO_PLOTS = (
             "shapiro_pvalue_HAbort",
             "shapiro_pvalue_HAchow",
         ),
-        title="Nrf1 AP-MS: HA bortezomib vs HA chow",
-        xlabel="log2(FC HA bort/HA chow)",
+        title="Nrf1 proteomics - bortezomib vs. chow",
+        xlabel="log2 fold change (bortezomib/chow)",
     ),
     VolcanoPlotSpec(
         key="ha_chow_lacz",
-        filename="results-hachow-lacz.png",
+        filename="results-chow-vs-lacz-original.png",
         x_column="log2_FC_HAchow_lacZ",
         pvalue_column="pvaluechow",
         assumption_pvalue_columns=(
@@ -86,8 +86,8 @@ VOLCANO_PLOTS = (
             "shapiro_pvalue_HAchow",
             "shapiro_pvalue_lacZ",
         ),
-        title="Nrf1 AP-MS: HA chow vs lacZ",
-        xlabel="log2(FC HA chow/lacZ)",
+        title="Nrf1 proteomics - chow vs. lacZ",
+        xlabel="Adjusted log2 fold change (chow/lacZ)",
     ),
 )
 
