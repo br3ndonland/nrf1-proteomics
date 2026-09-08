@@ -4,7 +4,7 @@ from pathlib import Path
 import polars as pl
 from matplotlib import pyplot as plt
 
-import nrf1_proteomics.plots as plots
+from nrf1_proteomics import plots
 from nrf1_proteomics.analysis import AnalysisArtifacts, analyze_raw_data
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]

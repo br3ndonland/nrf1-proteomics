@@ -29,7 +29,7 @@ plot = "nrf1_proteomics.plots:main"
 [dependency-groups]
 checks = [
   "basedpyright>=1,<2",
-  "ruff>=0.15,<0.16",
+  "ruff>=0.16,<0.17",
   "scipy-stubs>=1.14,<2",
 ]
 tests = [

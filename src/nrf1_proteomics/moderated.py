@@ -359,7 +359,7 @@ def _robust_variance_prior(
     log_variances = np.log(variances)
     if covariate is None:
         sorted_values = np.sort(log_variances)
-        trim = int(math.floor(_WINSOR_UPPER * variances.size))
+        trim = math.floor(_WINSOR_UPPER * variances.size)
         center = float(np.mean(sorted_values[trim : variances.size - trim]))
         log_trend = np.full(variances.size, center)
     else:
@@ -554,7 +554,7 @@ def _lowess(
     x = np.asarray(covariate, dtype=np.float64)[order]
     y = np.asarray(response, dtype=np.float64)[order]
     point_count = int(x.size)
-    neighborhood = max(2, int(math.ceil(fraction * point_count)))
+    neighborhood = max(2, math.ceil(fraction * point_count))
     robust_weights: FloatArray = np.ones(point_count, dtype=np.float64)
     fitted: FloatArray = np.empty(point_count, dtype=np.float64)
 
